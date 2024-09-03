@@ -31,7 +31,7 @@ export const setCurrentEmail = (props: Email) => {
 }
 
 export const getEmails = async (email: string) => {
-  const response: Email[] = await fetch(`/api/email?email=${email}`)
+  const response: Email[] = await fetch(`/api/email.json?email=${email}`)
     .then((res) => {
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json()
