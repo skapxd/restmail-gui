@@ -1,4 +1,6 @@
-// import type { Email } from "../../store/current-email";
+import type { Email } from "../../store/current-email";
+
+export const prerender = false;
 
 export const GET = async (props: { request: Request }): Promise<Response> => {
   return new Response('GET request received', { status: 200 })
