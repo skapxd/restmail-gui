@@ -1,14 +1,20 @@
+// @ts-check
 import { defineConfig } from 'astro/config';
 
 import tailwind from '@astrojs/tailwind';
 
 import preact from '@astrojs/preact';
 
-import vercel from '@astrojs/vercel';
+
+import node from '@astrojs/node';
+
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), preact()],
   output: 'hybrid',
-  adapter: vercel()
+
+  adapter: node({
+    mode: 'standalone',
+  }),
 });
