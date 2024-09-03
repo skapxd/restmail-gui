@@ -1,6 +1,9 @@
 import type { Email } from "../../store/current-email";
 
-export async function GET({ request }: { request: Request }): Promise<Response> {
+export async function GET(props: { request: Request }): Promise<Response> {
+  return new Response('GET request received', { status: 200 })
+
+  const { request } = props
   const email = new URL(request.url).searchParams.get('email')
   const response = await fetch(`https://restmail.net/mail/${email}`)
     .then((res) => {
