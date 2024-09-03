@@ -1,4 +1,4 @@
-import type { Email } from "../store/current-email";
+import type { Email } from "../../store/current-email";
 
 export const prerender = false
 
