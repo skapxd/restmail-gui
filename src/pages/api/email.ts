@@ -1,7 +1,5 @@
 import type { Email } from "../../store/current-email";
 
-export const prerender = false
-
 export async function GET({ request }: { request: Request }): Promise<Response> {
   const email = new URL(request.url).searchParams.get('email')
   const response = await fetch(`https://restmail.net/mail/${email}`)
@@ -13,5 +11,8 @@ export async function GET({ request }: { request: Request }): Promise<Response> 
       return res.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     })
 
-  return new Response(JSON.stringify(response))
+  return new Response(
+    JSON.stringify(response),
+    { headers: { 'content-type': 'application/json' } }
+  )
 };
