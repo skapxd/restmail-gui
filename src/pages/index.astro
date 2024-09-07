@@ -3,8 +3,25 @@ import Items from '../components/Item';
 import Viewer  from '../components/Viewer';
 import Layout from '../layouts/Layout.astro';
 ---
+<script type="module">
 
+	const btn = document.querySelector('[id="jojojo"]')
+	btn.addEventListener('click', async () => {
+		await fetch(`/api/hello-world`)
+			.then((res) => res.text())
+			.then((data) => {
+				alert(`success: ${JSON.stringify( data)}`,)
+			})
+			.catch((err) => {
+				alert(`erro: ${JSON.stringify(err)}`, )
+			})
+	})
+	</script>
+	
+	
 <Layout title="Welcome to Astro.">
+	<button id="jojojo">fetch</button>
+
 	<main class="flex w-full h-dvh shadow-lg bg-gray-900 text-gray-100">
 		<section class="flex flex-col pt-3 w-4/12 bg-gray-800 h-full overflow-y-auto ">
 			<label class="px-3">
