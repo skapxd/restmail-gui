@@ -2,8 +2,10 @@
 import Items from "#/src/components/Item";
 import Viewer from "#/src/components/Viewer";
 import Layout from "#/src/layouts/Layout.astro";
+
+export const prerender = true;
+
 const { email } = Astro.params;
-console.log(email);
 ---
 
 <Layout title="Welcome to Astro.">
