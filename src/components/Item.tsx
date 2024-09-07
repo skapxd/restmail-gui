@@ -6,12 +6,12 @@ export interface ItemProps extends Email {
   index?: number;
 }
 
-export default function Items() {
+export default function Items({ email }: { email?: string }) {
   const $arr = useStore(arr);
 
   useEffect(() => {
-    const email = new URLSearchParams(window.location.search).get('email')
     if (!email) return
+    console.log({ email })
     getEmails(email)
   }, [])
 
