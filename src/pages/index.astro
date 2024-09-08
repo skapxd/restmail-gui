@@ -27,7 +27,7 @@ import Layout from "#/src/layouts/Layout.astro";
   arrEmails.subscribe((emails) => {
     datalist.innerHTML = emails
       .toSorted((a, b) => b.weight - a.weight)
-      .map((email) => `<option value="${email.email}">${email.email}</option>`)
+      .map((email) => `<option value="${email.email}">${email.email}@restmail.net</option>`)
       .join("");
   });
 </script>
