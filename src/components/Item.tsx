@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/preact';
-import { arr, getEmails, setCurrentEmail, type Email } from '../store/current-email';
+import { arr, getEmails, setCurrentEmail, type props } from '../store/current-email';
 import { useEffect } from 'preact/hooks';
 
 export interface ItemProps extends Email {

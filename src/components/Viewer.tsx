@@ -51,7 +51,7 @@ export default function Viewer() {
           </ul>
         </div>
       </div>
-      <section class='overflow-y-auto'>
+      <section class='overflow-y-auto' id="content-email">
         <div dangerouslySetInnerHTML={{ __html: $currentEmail.html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '') }} ></div>
       </section>
     </section>

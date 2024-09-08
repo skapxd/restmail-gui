@@ -1,10 +1,54 @@
 ---
-import Layout from "../layouts/Layout.astro";
-export const prerender = true;
+import Items from "#/src/components/Item";
+import Viewer from "#/src/components/Viewer";
+import Layout from "#/src/layouts/Layout.astro";
 ---
+
+<script>
+  import { getEmails, arrEmails } from "src/store/current-email";
+
+  const input = document.querySelector("input[type=email]")!;
+  let timeoutId: any;
+
+  input.addEventListener("input", (e) => {
+    // @ts-ignore
+    const email = e.currentTarget.value;
+
+    console.log(timeoutId);
+    clearTimeout(timeoutId);
+
+    timeoutId = setTimeout(() => {
+      getEmails(email);
+    }, 500); // Adjust the debounce delay as needed
+    // @ts-ignore
+  });
+
+  const datalist = document.querySelector("datalist")!;
+
+  arrEmails.subscribe((emails) => {
+    datalist.innerHTML = emails
+      .map((email) => `<option value="${email.email}">${email.email}</option>`)
+      .join("");
+  });
+</script>
 
 <Layout title="Welcome to Astro.">
   <main class="flex w-full h-dvh shadow-lg bg-gray-900 text-gray-100">
-    
+    <section
+      class="flex flex-col pt-3 w-4/12 bg-gray-800 h-full overflow-y-auto"
+    >
+      <label class="px-3">
+        <input
+          class="rounded-lg p-4 bg-gray-700 text-gray-200 transition duration-200 focus:outline-none focus:ring-2 w-full"
+          placeholder="Search..."
+          type="email"
+          list="emails"
+        />
+        <datalist id="emails"> </datalist>
+      </label>
+
+      <Items client:visible />
+    </section>
+    <Viewer client:visible />
   </main>
 </Layout>
