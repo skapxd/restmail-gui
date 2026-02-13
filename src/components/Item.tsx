@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/preact';
-import { arr, getEmails, setCurrentEmail, currentEmail, type Email } from 'src/store/current-email';
+import { arr, getEmails, setCurrentEmail, pendingMobileNav, currentEmail, type Email } from 'src/store/current-email';
 import { useEffect } from 'preact/hooks';
 
 export interface ItemProps extends Email {
@@ -102,7 +102,12 @@ export function Item(props: ItemProps) {
           ? 'bg-indigo-500/10 border-l-indigo-400'
           : 'border-l-transparent hover:bg-[#334155]/50'
       }`}
-      onClick={() => setCurrentEmail(props)}
+      onClick={() => {
+        setCurrentEmail(props);
+        if (window.matchMedia('(max-width: 767px)').matches) {
+          pendingMobileNav.set(true);
+        }
+      }}
     >
       <div class={`w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center text-xs font-semibold mt-0.5 ${getAvatarColor(senderName)}`}>
         {getInitials(senderName)}

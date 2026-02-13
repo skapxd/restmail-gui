@@ -1,15 +1,20 @@
 import { useStore } from '@nanostores/preact';
 import { useRef, useEffect } from 'preact/hooks';
-import { currentEmail } from '../store/current-email';
+import { currentEmail, setMobileView, pendingMobileNav } from '../store/current-email';
 
 const SHADOW_STYLES = `
   :host {
     display: block;
     background-color: #f8fafc;
     border-radius: 12px;
-    padding: 24px;
+    padding: 16px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     color-scheme: light;
+  }
+  @media (min-width: 768px) {
+    :host {
+      padding: 24px;
+    }
   }
   * {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -57,7 +62,15 @@ function ShadowContent({ html }: { html: string }) {
 
 export default function Viewer() {
   const $currentEmail = useStore(currentEmail);
+  const $pendingNav = useStore(pendingMobileNav);
   const hasEmail = $currentEmail?.from?.length > 0 && $currentEmail?.from?.[0]?.address;
+
+  useEffect(() => {
+    if ($pendingNav) {
+      setMobileView('viewer');
+      pendingMobileNav.set(false);
+    }
+  }, [$pendingNav]);
 
   if (!hasEmail) {
     return (
@@ -81,8 +94,19 @@ export default function Viewer() {
 
   return (
     <section class="flex-1 flex flex-col bg-[#0f172a] h-full overflow-hidden">
+      {/* Back button - mobile only */}
+      <button
+        onClick={() => setMobileView('list')}
+        class="md:hidden flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white border-b border-[#334155] bg-[#1e293b]/80 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to inbox
+      </button>
+
       {/* Email header */}
-      <div class="px-6 py-5 border-b border-[#334155] bg-[#1e293b]/50">
+      <div class="px-4 md:px-6 py-5 border-b border-[#334155] bg-[#1e293b]/50">
         <div class="flex items-start gap-4">
           <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 font-semibold text-sm flex-shrink-0">
             {initial}
@@ -114,7 +138,7 @@ export default function Viewer() {
       </div>
 
       {/* Email body - isolated via Shadow DOM */}
-      <div class="flex-1 overflow-y-auto p-6">
+      <div class="flex-1 overflow-y-auto p-4 md:p-6">
         <ShadowContent html={$currentEmail.html} />
       </div>
     </section>

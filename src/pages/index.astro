@@ -5,7 +5,7 @@ import Layout from "#/src/layouts/Layout.astro";
 ---
 
 <script>
-  import { getEmails, arrEmails } from "src/store/current-email";
+  import { getEmails, arrEmails, mobileView } from "src/store/current-email";
 
   const input = document.querySelector("#email-input") as HTMLInputElement;
   let timeoutId: any;
@@ -29,12 +29,32 @@ import Layout from "#/src/layouts/Layout.astro";
       .map((email) => `<option value="${email.email}">${email.email}@restmail.net</option>`)
       .join("");
   });
+
+  // Mobile view toggling
+  const listPanel = document.querySelector('[data-mobile-panel="list"]') as HTMLElement;
+  const viewerPanel = document.querySelector('[data-mobile-panel="viewer"]') as HTMLElement;
+
+  function applyMobileView(view: string) {
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (isMobile) {
+      listPanel.style.display = view === 'list' ? 'flex' : 'none';
+      viewerPanel.style.display = view === 'viewer' ? 'flex' : 'none';
+    } else {
+      listPanel.style.display = 'flex';
+      viewerPanel.style.display = 'flex';
+    }
+  }
+
+  mobileView.subscribe(applyMobileView);
+  window.matchMedia('(max-width: 767px)').addEventListener('change', () => {
+    applyMobileView(mobileView.get());
+  });
 </script>
 
 <Layout title="Restmail UI">
-  <main class="flex w-full h-dvh bg-[#0f172a] text-gray-100">
+  <main class="flex flex-col md:flex-row w-full h-dvh bg-[#0f172a] text-gray-100">
     <!-- Sidebar -->
-    <section class="flex flex-col w-80 min-w-[320px] bg-[#1e293b] h-full border-r border-[#334155]">
+    <section data-mobile-panel="list" class="flex flex-col w-full md:w-80 md:min-w-[320px] bg-[#1e293b] h-full border-r border-[#334155]">
       <!-- Header -->
       <div class="px-4 py-5 border-b border-[#334155]">
         <div class="flex items-center gap-3 mb-4">
@@ -78,6 +98,8 @@ import Layout from "#/src/layouts/Layout.astro";
     </section>
 
     <!-- Viewer -->
-    <Viewer client:visible />
+    <div data-mobile-panel="viewer" class="w-full md:flex-1 flex h-full">
+      <Viewer client:visible />
+    </div>
   </main>
 </Layout>

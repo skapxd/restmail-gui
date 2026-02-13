@@ -1,5 +1,10 @@
-import { map } from "nanostores";
+import { atom, map } from "nanostores";
 import { persistentAtom, persistentMap } from "@nanostores/persistent";
+
+export type MobileView = 'list' | 'viewer';
+export const mobileView = atom<MobileView>('list');
+export const setMobileView = (view: MobileView) => mobileView.set(view);
+export const pendingMobileNav = atom(false);
 
 const initState: Email = {
   from: [],
