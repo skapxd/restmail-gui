@@ -7,25 +7,44 @@ import Layout from "#/src/layouts/Layout.astro";
 <script>
   import { getEmails, arrEmails, mobileView } from "src/store/current-email";
 
+  const form = document.querySelector("#email-form") as HTMLFormElement;
   const input = document.querySelector("#email-input") as HTMLInputElement;
-  let timeoutId: any;
+  const clearBtn = document.querySelector("#clear-input") as HTMLButtonElement;
 
-  input.addEventListener("input", (e) => {
-    // @ts-ignore
-    const email = e.currentTarget.value;
+  function updateClearButton() {
+    clearBtn.hidden = !input.value;
+  }
 
-    clearTimeout(timeoutId);
-
-    timeoutId = setTimeout(() => {
-      getEmails(email);
-    }, 500);
+  input.addEventListener("input", () => {
+    updateClearButton();
   });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = input.value.trim();
+    getEmails(email);
+    input.blur();
+  });
+
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    updateClearButton();
+    getEmails("");
+    input.focus();
+  });
+
+  window.addEventListener("recent-email-selected", ((e: CustomEvent) => {
+    const email = e.detail;
+    input.value = email;
+    updateClearButton();
+    getEmails(email);
+  }) as EventListener);
 
   const datalist = document.querySelector("datalist")!;
 
   arrEmails.subscribe((emails) => {
     datalist.innerHTML = emails
-      .toSorted((a, b) => b.weight - a.weight)
+      .toSorted((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0))
       .map((email) => `<option value="${email.email}">${email.email}@restmail.net</option>`)
       .join("");
   });
@@ -70,7 +89,7 @@ import Layout from "#/src/layouts/Layout.astro";
         </div>
 
         <!-- Search input -->
-        <div class="relative">
+        <form id="email-form" class="relative" autocomplete="off">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -78,22 +97,34 @@ import Layout from "#/src/layouts/Layout.astro";
           </div>
           <input
             id="email-input"
-            class="w-full rounded-lg py-2.5 pl-10 pr-28 bg-[#0f172a] text-sm text-slate-200 placeholder-slate-500 border border-[#334155] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50"
+            class="w-full rounded-lg py-2.5 pl-10 pr-36 bg-[#0f172a] text-sm text-slate-200 placeholder-slate-500 border border-[#334155] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50"
             placeholder="Enter username..."
-            type="email"
+            type="text"
             list="emails"
             autocomplete="off"
+            autocapitalize="off"
           />
-          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <span class="text-xs text-slate-500 font-mono">@restmail.net</span>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1">
+            <button
+              id="clear-input"
+              hidden
+              class="p-0.5 rounded text-slate-400 hover:text-white hover:bg-slate-600/50 transition-colors"
+              type="button"
+              title="Limpiar"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <span class="text-xs text-slate-500 font-mono pointer-events-none">@restmail.net</span>
           </div>
           <datalist id="emails"> </datalist>
-        </div>
+        </form>
       </div>
 
       <!-- Email list -->
-      <div class="flex-1 overflow-y-auto">
-        <Items client:visible />
+      <div class="flex-1 overflow-y-auto overflow-x-hidden">
+        <Items client:only="preact" />
       </div>
     </section>
 

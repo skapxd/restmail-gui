@@ -9,7 +9,12 @@ const { email } = Astro.params;
 ---
 
 <script>
-  import { mobileView } from "src/store/current-email";
+  import { mobileView, getEmails } from "src/store/current-email";
+
+  window.addEventListener("recent-email-selected", ((e: CustomEvent) => {
+    const email = e.detail;
+    window.location.href = `/inbox/${email}`;
+  }) as EventListener);
 
   const listPanel = document.querySelector('[data-mobile-panel="list"]') as HTMLElement;
   const viewerPanel = document.querySelector('[data-mobile-panel="viewer"]') as HTMLElement;
@@ -58,13 +63,15 @@ const { email } = Astro.params;
           <input
             class="w-full rounded-lg py-2.5 pl-10 pr-4 bg-[#0f172a] text-sm text-slate-200 placeholder-slate-500 border border-[#334155] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50"
             placeholder="Filter emails..."
+            autocapitalize="off"
+            autocomplete="off"
           />
         </div>
       </div>
 
       <!-- Email list -->
-      <div class="flex-1 overflow-y-auto">
-        <Items email={email} client:visible />
+      <div class="flex-1 overflow-y-auto overflow-x-hidden">
+        <Items email={email} client:only="preact" />
       </div>
     </section>
 

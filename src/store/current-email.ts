@@ -35,6 +35,7 @@ export const arr = map<Email[]>([]);
 interface PersisEmail {
   email: string;
   weight: number;
+  lastUsed: number;
 }
 export const arrEmails = persistentAtom<Array<PersisEmail>>("arrEmail", [], {
   encode: JSON.stringify,
@@ -45,9 +46,16 @@ export const setCurrentEmail = (props: Email) => {
   currentEmail.set(props);
 };
 
+export const removeRecentEmail = (email: string) => {
+  const before = arrEmails.get();
+  arrEmails.set(before.filter((item) => item.email !== email));
+};
+
 export const getEmails = async (email: string) => {
-  // const _ = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{3,4}$/);
-  if (!email) return;
+  if (!email) {
+    arr.set([]);
+    return;
+  }
 
   const response: Email[] = await fetch(`/api/email.json?email=${email}@restmail.net`).then(
     (res) => {
@@ -56,17 +64,15 @@ export const getEmails = async (email: string) => {
     }
   );
 
-  // TODO: en caso de que exista el email en la lista, incrementar el peso
-
-  // TODO: en caso de que no exista el email en la lista, agregarlo
   const before = arrEmails.get();
-  const current = before.find((item) => item.email === email) 
+  const current = before.find((item) => item.email === email);
 
   if (current) {
     current.weight++;
-    arrEmails.set([...before,]);
+    current.lastUsed = Date.now();
+    arrEmails.set([...before]);
   } else {
-    arrEmails.set([...before, { email, weight: 0 }]);
+    arrEmails.set([...before, { email, weight: 0, lastUsed: Date.now() }]);
   }
 
   arr.set(response);
