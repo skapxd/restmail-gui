@@ -60,10 +60,11 @@ export const getEmails = async (email: string) => {
   if (current) {
     current.weight++;
     arrEmails.set([...before,]);
-    return arr.set(response);
   } else {
     arrEmails.set([...before, { email, weight: 0 }]);
   }
+
+  arr.set(response);
 };
 
 export interface Email {

@@ -10,9 +10,12 @@ const { title } = Astro.props;
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
+		<meta name="description" content="Restmail UI - Temporary email viewer" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
@@ -22,36 +25,60 @@ const { title } = Astro.props;
 </html>
 <style is:global>
 	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
+		--accent: 99, 102, 241;
+		--accent-light: 165, 180, 252;
+		--bg-primary: #0f172a;
+		--bg-secondary: #1e293b;
+		--bg-tertiary: #334155;
+		--text-primary: #f1f5f9;
+		--text-secondary: #94a3b8;
+		--border-color: #334155;
 	}
+
 	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-		color-scheme: dark light;
+		font-family: 'Inter', system-ui, -apple-system, sans-serif;
+		background: var(--bg-primary);
+		color-scheme: dark;
 	}
 
-	#content-email {
-		color-scheme: light dark;
-		background-color: #fffa;
+	body {
+		margin: 0;
+		padding: 0;
 	}
 
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--bg-tertiary) transparent;
+	}
+
+	*::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background-color: var(--bg-tertiary);
+		border-radius: 3px;
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 0; transform: translateY(4px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.5; }
+	}
+
+	.animate-fade-in {
+		animation: fadeIn 0.2s ease-out;
+	}
+
+	.animate-pulse {
+		animation: pulse 1.5s ease-in-out infinite;
 	}
 </style>

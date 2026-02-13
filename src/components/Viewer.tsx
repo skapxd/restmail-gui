@@ -1,59 +1,122 @@
 import { useStore } from '@nanostores/preact';
+import { useRef, useEffect } from 'preact/hooks';
+import { currentEmail } from '../store/current-email';
 
-import { currentEmail } from '../store/current-email'
+const SHADOW_STYLES = `
+  :host {
+    display: block;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    color-scheme: light;
+  }
+  * {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a;
+    margin-top: 0;
+  }
+  p, li, td, span, div {
+    color: #334155;
+  }
+  a {
+    color: #4f46e5;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  table {
+    max-width: 100%;
+  }
+`;
+
+function ShadowContent({ html }: { html: string }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const shadowRef = useRef<ShadowRoot | null>(null);
+
+  useEffect(() => {
+    if (!hostRef.current) return;
+    if (!shadowRef.current) {
+      shadowRef.current = hostRef.current.attachShadow({ mode: 'open' });
+    }
+    shadowRef.current.innerHTML = `<style>${SHADOW_STYLES}</style>${html}`;
+  }, [html]);
+
+  return <div ref={hostRef} />;
+}
 
 export default function Viewer() {
   const $currentEmail = useStore(currentEmail);
+  const hasEmail = $currentEmail?.from?.length > 0 && $currentEmail?.from?.[0]?.address;
+
+  if (!hasEmail) {
+    return (
+      <section class="flex-1 flex flex-col items-center justify-center bg-[#0f172a] px-8">
+        <div class="w-20 h-20 rounded-2xl bg-slate-800/80 flex items-center justify-center mb-6">
+          <svg class="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-300 mb-2">No email selected</h2>
+        <p class="text-sm text-slate-500 text-center max-w-xs">
+          Enter a username in the search bar to load their restmail.net inbox
+        </p>
+      </section>
+    );
+  }
+
+  const senderName = $currentEmail.from[0].name || $currentEmail.from[0].address;
+  const senderAddress = $currentEmail.from[0].address;
+  const initial = senderName ? senderName[0].toUpperCase() : '?';
 
   return (
-    <section class="w-8/12 px-4 flex flex-col bg-gray-800">
-      <div class="flex justify-between items-center min-h-48 border-b-2 border-gray-700 mb-8">
-        <div class="flex space-x-4 items-center">
-          <div class="flex flex-col">
-            <h3 class="font-semibold text-lg">{$currentEmail?.from?.[0]?.name}</h3>
-            <p class="text-light text-gray-400">{$currentEmail?.from?.[0]?.address}</p>
-            <h4 class=" ">{$currentEmail?.subject}</h4>
+    <section class="flex-1 flex flex-col bg-[#0f172a] h-full overflow-hidden">
+      {/* Email header */}
+      <div class="px-6 py-5 border-b border-[#334155] bg-[#1e293b]/50">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 font-semibold text-sm flex-shrink-0">
+            {initial}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-baseline justify-between gap-4">
+              <h3 class="text-base font-semibold text-white truncate">{senderName}</h3>
+              {$currentEmail.date && (
+                <time class="text-xs text-slate-500 whitespace-nowrap flex-shrink-0">
+                  {new Date($currentEmail.date).toLocaleDateString('es', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </time>
+              )}
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5 truncate">{senderAddress}</p>
+            <h4 class="text-sm text-slate-200 mt-2 font-medium">{$currentEmail.subject}</h4>
+            {$currentEmail.to?.[0]?.address && (
+              <p class="text-xs text-slate-500 mt-1">
+                To: <span class="text-slate-400">{$currentEmail.to[0].address}</span>
+              </p>
+            )}
           </div>
         </div>
-        <div>
-          <ul class="flex text-gray-400 space-x-4">
-            <li class="w-6 h-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-              </svg>
-            </li>
-            <li class="w-6 h-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </li>
-
-            <li class="w-6 h-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-            </li>
-            <li class="w-6 h-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </li>
-            <li class="w-6 h-6">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            </li>
-          </ul>
-        </div>
       </div>
-      <section class='overflow-y-auto' id="content-email">
-        <div dangerouslySetInnerHTML={{ __html: $currentEmail.html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '') }} ></div>
-      </section>
+
+      {/* Email body - isolated via Shadow DOM */}
+      <div class="flex-1 overflow-y-auto p-6">
+        <ShadowContent html={$currentEmail.html} />
+      </div>
     </section>
-  )
+  );
 }
