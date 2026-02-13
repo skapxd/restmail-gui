@@ -130,7 +130,7 @@ import Layout from "#/src/layouts/Layout.astro";
 
     <!-- Viewer -->
     <div data-mobile-panel="viewer" class="w-full md:flex-1 flex h-full">
-      <Viewer client:visible />
+      <Viewer client:only="preact" />
     </div>
   </main>
 </Layout>
